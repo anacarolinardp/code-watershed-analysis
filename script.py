@@ -1,4 +1,4 @@
-##Hidro=group
+##Hidrotool=group
 ##Basic Analysis=name
 ##Drenagem=vector line
 ##Bacia=vector polygon
@@ -6,57 +6,6 @@
 
 from qgis.core import *
 import math
-
-# Carregando as camadas da rede de drenagem e da bacia hidrografica
-dlayer = QgsVectorLayer(Drenagem, "drenagem", "ogr")
-blayer = QgsVectorLayer(Bacia, "bacia", "ogr")
-
-
-'''Extraindo dados da rede de drenagem'''
-
-# Acessando atributos da drenagem
-dfeatures = dlayer.getFeatures()
-# Listando os valores por coluna
-listdfeatures = list(zip(*dfeatures))
-
-# Valor de ordem minimo e maximo
-maxordem = max(listdfeatures[0])
-minordem = min(listdfeatures[0])
-
-# Contando feicoes pela hierarquia fluvial
-ordem = minordem
-hierarquia = []
-while (ordem <= maxordem):
-    contagem = listdfeatures[0].count(ordem)
-    hierarquia.append(contagem)
-    ordem += 1
-
-# Total de rios - quantidade de rios de primeira ordem
-totalrios = hierarquia[0]
-
-# Total de segmentos - soma dos rios de todas as ordens
-totalsegmentos = math.fsum(hierarquia)
-
-# Comprimento dos canais - soma de todos os elementos da lista com comprimento dos canais
-comprimentocanais = math.fsum(listdfeatures[1])
-
-# Comprimento medio dos canais - razao entre comprimento dos canais e total de segmentos
-comprimentomcanais = comprimentocanais / totalsegmentos
-
-# Criando lista com texto e contagem de canais de cada ordem
-posicao_hf = 0
-dados_hf = []
-while posicao_hf < maxordem:
-    order = posicao_hf + 1
-    dados_hf.append('- Canais de ordem {}: {}.'.format(order, hierarquia[posicao_hf]))
-    posicao_hf += 1
-
-
-'''Extraindo dados da bacia hidrografica'''
-
-areabh = blayer.getValues(blayer.fields()[0].name())[0]
-perimetrobh = blayer.getValues(blayer.fields()[1].name())[0]
-comprimentobh = blayer.getValues(blayer.fields()[2].name())[0]
 
 
 '''Definindo funcoes'''
@@ -115,6 +64,57 @@ def fator_forma(valor_area_bacia, valor_comprimento_bacia):
     kf = valor_area_bacia / (valor_comprimento_bacia ** 2)
     return kf
 
+# Carregando as camadas da rede de drenagem e da bacia hidrografica
+dlayer = QgsVectorLayer(Drenagem, "drenagem", "ogr")
+blayer = QgsVectorLayer(Bacia, "bacia", "ogr")
+
+'''Extraindo dados da rede de drenagem'''
+
+# Acessando atributos da drenagem
+dfeatures = dlayer.getFeatures()
+# Listando os valores por coluna
+listdfeatures = list(zip(*dfeatures))
+
+# Valor de ordem minimo e maximo
+maxordem = max(listdfeatures[0])
+minordem = min(listdfeatures[0])
+
+# Contando feicoes pela hierarquia fluvial
+ordem = minordem
+hierarquia = []
+while (ordem <= maxordem):
+    contagem = listdfeatures[0].count(ordem)
+    hierarquia.append(contagem)
+    ordem += 1
+
+# Total de rios - quantidade de rios de primeira ordem
+totalrios = hierarquia[0]
+
+# Total de segmentos - soma dos rios de todas as ordens
+totalsegmentos = math.fsum(hierarquia)
+
+# Comprimento dos canais - soma de todos os elementos da lista com comprimento dos canais
+comprimentocanais = math.fsum(listdfeatures[1])
+
+# Comprimento medio dos canais - razao entre comprimento dos canais e total de segmentos
+comprimentomcanais = comprimentocanais / totalsegmentos
+
+# Criando lista com texto e contagem de canais de cada ordem
+posicao_hf = 0
+dados_hf = []
+while posicao_hf < maxordem:
+    order = posicao_hf + 1
+    dados_hf.append('- Canais de ordem {}: {}.'.format(order, hierarquia[posicao_hf]))
+    posicao_hf += 1
+
+
+'''Extraindo dados da bacia hidrografica'''
+
+areabh = blayer.getValues(blayer.fields()[0].name())[0]
+perimetrobh = blayer.getValues(blayer.fields()[1].name())[0]
+comprimentobh = blayer.getValues(blayer.fields()[2].name())[0]
+
+
 
 '''Usando as funcoes'''
 
@@ -145,9 +145,9 @@ for z in range(len(rb)):
 texto.append('Densidade de rios: {:.2f}\n'.format(dr))
 texto.append('Densidade de drenagem: {:.2f}\n'.format(dd))
 texto.append('Densidade de segmentos: {:.2f}\n'.format(ds))
-texto.append('Coeficiente de manutenÃ§Ã£o: {:.2f}\n'.format(cm))
-texto.append('ExtensÃ£o media do escoamento superficial: {:.2f}\n'.format(em))
-texto.append('Indice de circularidade: {:.2f}\n'.format(ic))
+texto.append('Coeficiente de manutenÃÂÃÂ§ÃÂÃÂ£o: {:.2f}\n'.format(cm))
+texto.append('ExtensÃÂÃÂ£o media do escoamento superficial: {:.2f}\n'.format(em))
+texto.append('IÃÂndice de circularidade: {:.2f}\n'.format(ic))
 texto.append('Coeficiente de compacidade: {:.2f}\n'.format(kc))
 texto.append('Fator de forma: {:.2f}\n'.format(kf))
 resultado.writelines(texto)
