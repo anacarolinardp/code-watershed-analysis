@@ -8,7 +8,7 @@ from qgis.core import *
 import math
 
 
-'''Definindo funcoes'''
+'''Functions'''
 
 def relacao_bifurcacao(valores_hierarquia):
     posicao = 0
@@ -24,7 +24,7 @@ def relacao_bifurcacao(valores_hierarquia):
     posicao_rb = 0
     while valor_ordem < len(valores_hierarquia):
         sucessor_ordem = valor_ordem + 1
-        rb.append('- Relacao de ordem {} / {}: {}.'.format(valor_ordem, sucessor_ordem, rel_bifurcacao[posicao_rb]))
+        rb.append('- Order relation {} / {}: {}.'.format(valor_ordem, sucessor_ordem, rel_bifurcacao[posicao_rb]))
         valor_ordem += 1
         posicao_rb +=1
     
@@ -64,22 +64,22 @@ def fator_forma(valor_area_bacia, valor_comprimento_bacia):
     kf = valor_area_bacia / (valor_comprimento_bacia ** 2)
     return kf
 
-# Carregando as camadas da rede de drenagem e da bacia hidrografica
+# Loading dreinage and watershed layers
 dlayer = QgsVectorLayer(Drenagem, "drenagem", "ogr")
 blayer = QgsVectorLayer(Bacia, "bacia", "ogr")
 
-'''Extraindo dados da rede de drenagem'''
+'''Extracting dreinage data'''
 
-# Acessando atributos da drenagem
+# Dreinage attributes
 dfeatures = dlayer.getFeatures()
-# Listando os valores por coluna
+# Listing values per column
 listdfeatures = list(zip(*dfeatures))
 
-# Valor de ordem minimo e maximo
+# Max and min order values
 maxordem = max(listdfeatures[0])
 minordem = min(listdfeatures[0])
 
-# Contando feicoes pela hierarquia fluvial
+# Counting features of channel hierarchy
 ordem = minordem
 hierarquia = []
 while (ordem <= maxordem):
@@ -87,36 +87,35 @@ while (ordem <= maxordem):
     hierarquia.append(contagem)
     ordem += 1
 
-# Total de rios - quantidade de rios de primeira ordem
+# Total of rivers - quantity of first order rivers
 totalrios = hierarquia[0]
 
-# Total de segmentos - soma dos rios de todas as ordens
+# Total segments - sum of rivers of all orders
 totalsegmentos = math.fsum(hierarquia)
 
-# Comprimento dos canais - soma de todos os elementos da lista com comprimento dos canais
+# Channels Length - The sum of all the elements in the list that has length values ​​of channels  length ('Length' field)
 comprimentocanais = math.fsum(listdfeatures[1])
 
-# Comprimento medio dos canais - razao entre comprimento dos canais e total de segmentos
+# Average length of channels - ratio between channel length and total segments
 comprimentomcanais = comprimentocanais / totalsegmentos
 
-# Criando lista com texto e contagem de canais de cada ordem
+# Creating list with text and channel count of each order
 posicao_hf = 0
 dados_hf = []
 while posicao_hf < maxordem:
     order = posicao_hf + 1
-    dados_hf.append('- Canais de ordem {}: {}.'.format(order, hierarquia[posicao_hf]))
+    dados_hf.append('- Channel order {}: {}.'.format(order, hierarquia[posicao_hf]))
     posicao_hf += 1
 
 
-'''Extraindo dados da bacia hidrografica'''
+'''Extracting watershed data'''
 
 areabh = blayer.getValues(blayer.fields()[0].name())[0]
 perimetrobh = blayer.getValues(blayer.fields()[1].name())[0]
 comprimentobh = blayer.getValues(blayer.fields()[2].name())[0]
 
 
-
-'''Usando as funcoes'''
+'''Using functions'''
 
 rb = relacao_bifurcacao(hierarquia)
 dr = densidade_rios(totalrios, areabh)
@@ -129,27 +128,27 @@ kc = coeficiente_compacidade(perimetrobh, areabh)
 kf = fator_forma(areabh, comprimentobh)
 
 
-'''Exportando resultados'''
+'''Output results'''
 
 resultado = open(Resultados, 'wt')
 texto = []
-texto.append('Quantidade de rios: {:.0f}\n'.format(totalrios)) 
-texto.append('Quantidade de segmentos: {:.0f}\n'.format(totalsegmentos)) 
-texto.append('Comprimento total dos canais: {:.2f}\n'.format(comprimentocanais))
-texto.append('Comprimento medio dos canais: {:.2f}\n'.format(comprimentomcanais))
-texto.append('Hierarquia fluvial:\n')
+texto.append('Number of rivers: {:.0f}\n'.format(totalrios)) 
+texto.append('Number of segments: {:.0f}\n'.format(totalsegmentos)) 
+texto.append('Channels length: {:.2f}\n'.format(comprimentocanais))
+texto.append('Average channels length: {:.2f}\n'.format(comprimentomcanais))
+texto.append('Channel hierarchy:\n')
 for z in range(len(dados_hf)):
     texto.append('{} \n'.format(dados_hf[z]))
 for z in range(len(rb)):
     texto.append('{} \n'.format(rb[z]))
-texto.append('Densidade de rios: {:.2f}\n'.format(dr))
-texto.append('Densidade de drenagem: {:.2f}\n'.format(dd))
-texto.append('Densidade de segmentos: {:.2f}\n'.format(ds))
-texto.append('Coeficiente de manutenÃÂÃÂ§ÃÂÃÂ£o: {:.2f}\n'.format(cm))
-texto.append('ExtensÃÂÃÂ£o media do escoamento superficial: {:.2f}\n'.format(em))
-texto.append('IÃÂndice de circularidade: {:.2f}\n'.format(ic))
-texto.append('Coeficiente de compacidade: {:.2f}\n'.format(kc))
-texto.append('Fator de forma: {:.2f}\n'.format(kf))
+texto.append('Density of rivers: {:.2f}\n'.format(dr))
+texto.append('Density of dreinage: {:.2f}\n'.format(dd))
+texto.append('Density of segments: {:.2f}\n'.format(ds))
+texto.append('Coefficient of maintenance: {:.2f}\n'.format(cm))
+texto.append('Mean extension of surface runoff: {:.2f}\n'.format(em))
+texto.append('Circularity index: {:.2f}\n'.format(ic))
+texto.append('Coefficient of capacity: {:.2f}\n'.format(kc))
+texto.append('Shape factor: {:.2f}\n'.format(kf))
 resultado.writelines(texto)
 resultado.close()
 
