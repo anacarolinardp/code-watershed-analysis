@@ -93,7 +93,7 @@ totalrios = hierarquia[0]
 # Total segments - sum of rivers of all orders
 totalsegmentos = math.fsum(hierarquia)
 
-# Channels Length - The sum of all the elements in the list that has length values ​​of channels  length ('Length' field)
+# Channels Length - The sum of all the elements in the list that has length values ​​of channels ('Length' field)
 comprimentocanais = math.fsum(listdfeatures[1])
 
 # Average length of channels - ratio between channel length and total segments
